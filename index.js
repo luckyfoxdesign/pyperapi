@@ -10,12 +10,12 @@ const cors = require("cors")
 const { v4: uuidv4 } = require("uuid")
 const { env } = require("process")
 
-// const corsOptions = {
-// 	origin: "http://80.249.144.228",
-// 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-// 	preflightContinue: false,
-// 	optionsSuccessStatus: 204,
-// }
+const corsOptions = {
+	origin: "http://80.249.144.228",
+	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+	preflightContinue: false,
+	optionsSuccessStatus: 204,
+}
 
 // app.use(cors(corsOptions))
 // app.use(
@@ -63,7 +63,7 @@ app.use(
 	})
 )
 
-app.get("/", cors(), function (req, res) {
+app.get("/", cors(corsOptions), function (req, res) {
 	req.session.data = { name: "maks" }
 	res.send("Hello " + JSON.stringify(req.session.data))
 	console.log("get / port = "`${env.NODEPORT}`)
