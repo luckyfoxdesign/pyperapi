@@ -35,7 +35,7 @@ const { env } = require("process")
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 const store = new MongoDBStore({
-	uri: `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${$env.ADDRESSS}/sessions_db?authSource=admin`,
+	uri: `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${env.ADDRESSS}/sessions_db?authSource=admin`,
 	databaseName: "sessions_db",
 	collection: "sessions",
 })
