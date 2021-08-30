@@ -65,8 +65,9 @@ app.use(
 
 app.get("/", cors(), function (req, res) {
 	req.session.data = { name: "maks" }
+	console.log(req.session)
+	console.log(req.session.data)
 	res.send("Hello " + JSON.stringify(req.session.data))
-	console.log(`get / port = ${env.NODEPORT}`)
 })
 
 app.get("/api", cors(), function (req, res) {
