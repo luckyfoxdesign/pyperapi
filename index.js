@@ -40,34 +40,34 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 app.use("/api/auth/login", [cors(), login])
 app.use("/api/auth/registration", [cors(), register])
 
-// const store = new MongoDBStore({
-// 	uri: `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${env.ADDRESS}/sessions_db?authSource=admin`,
-// 	databaseName: "sessions_db",
-// 	collection: "sessions",
-// })
+const store = new MongoDBStore({
+	uri: config.mongoConnectionString(sessions_db),
+	databaseName: "sessions_db",
+	collection: "sessions",
+})
 
-// store.on("error", function (error) {
-// 	console.log(error)
-// })
+store.on("error", function (error) {
+	console.log(error)
+})
 
-// app.use(
-// 	require("express-session")({
-// 		genid: function (req) {
-// 			return uuidv4()
-// 		},
-// 		secret: `${env.SESSECRET}`,
-// 		cookie: {
-// 			maxAge: 60 * 60, // 1 hour
-// 			secure: true,
-// 		},
-// 		store: store,
-// 		// Boilerplate options, see:
-// 		// * https://www.npmjs.com/package/express-session#resave
-// 		// * https://www.npmjs.com/package/express-session#saveuninitialized
-// 		resave: false,
-// 		saveUninitialized: false,
-// 	})
-// )
+app.use(
+	require("express-session")({
+		genid: function (req) {
+			return uuidv4()
+		},
+		secret: `${env.SESSECRET}`,
+		cookie: {
+			maxAge: 60 * 60, // 1 hour
+			secure: true,
+		},
+		store: store,
+		// Boilerplate options, see:
+		// * https://www.npmjs.com/package/express-session#resave
+		// * https://www.npmjs.com/package/express-session#saveuninitialized
+		resave: false,
+		saveUninitialized: false,
+	})
+)
 
 app.get("/", cors(), function (req, res) {
 	req.session.data = { name: "maks" }
