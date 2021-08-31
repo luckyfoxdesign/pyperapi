@@ -37,8 +37,8 @@ const register = require("./Routes/auth/registration/index")
 // app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-app.use("/api/auth/login", login)
-app.use("/api/auth/registration", register)
+app.use("/api/auth/login", [cors(), login])
+app.use("/api/auth/registration", [cors(), register])
 
 // const store = new MongoDBStore({
 // 	uri: `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${env.ADDRESS}/sessions_db?authSource=admin`,
