@@ -7,7 +7,7 @@ const { json } = require("body-parser")
 
 const argon2 = require("argon2")
 const usermodel = require("./models/User")
-const config = require("../../../../config/config")
+const config = require("../../../config/config")
 
 router.use(json())
 
