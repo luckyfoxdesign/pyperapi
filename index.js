@@ -78,7 +78,7 @@ app.get("/api", cors(), function (req, res) {
 	res.send(JSON.stringify({ msg: "api route says hello" }))
 })
 
-app.listen(env.NODEPORT, (err) => {
+app.listen(env.NODEPORT, async (err) => {
 	if (err) console.log("error", err)
 	else {
 		config.dataBaseConnection = await mongoose.createConnection(
