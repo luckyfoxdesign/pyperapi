@@ -41,7 +41,7 @@ app.use("/api/auth/login", [cors(), login])
 app.use("/api/auth/registration", [cors(), register])
 
 const store = new MongoDBStore({
-	uri: config.mongoConnectionString(sessions_db),
+	uri: config.mongoConnectionString("sessions_db"),
 	databaseName: "sessions_db",
 	collection: "sessions",
 })
