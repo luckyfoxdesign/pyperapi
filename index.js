@@ -10,6 +10,9 @@ const cors = require("cors")
 // const { v4: uuidv4 } = require("uuid")
 const { env } = require("process")
 
+const login = require("./Routes/auth/login/index")
+const register = require("./Routes/auth/registration/index")
+
 // const corsOptions = {
 // 	origin: "http://80.249.144.228",
 // 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
