@@ -17,9 +17,6 @@ const register = require("./Routes/auth/registration/index")
 // app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-app.use("/api/auth/login", [cors(), login])
-app.use("/api/auth/registration", [cors(), register])
-
 const store = new MongoDBStore({
 	uri: config.mongoConnectionString("sessions_db"),
 	databaseName: "sessions_db",
@@ -54,6 +51,9 @@ app.use(
 // 		res.json({ s: 1 })
 // 	} else res.json({ s: 0 })
 // })
+
+app.use("/api/auth/login", [cors(), login])
+app.use("/api/auth/registration", [cors(), register])
 
 app.listen(env.NODEPORT, async (err) => {
 	if (err) console.log("error", err)
