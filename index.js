@@ -13,26 +13,6 @@ const { env } = require("process")
 const login = require("./Routes/auth/login/index")
 const register = require("./Routes/auth/registration/index")
 
-// const corsOptions = {
-// 	origin: "http://80.249.144.228",
-// 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-// 	preflightContinue: false,
-// 	optionsSuccessStatus: 204,
-// }
-
-// app.use(cors(corsOptions))
-// app.use(
-// 	helmet.contentSecurityPolicy({
-// 		useDefaults: false,
-// 		directives: {
-// 			defaultSrc: ["'self'", "bs.devcodebox.com"],
-// 			scriptSrc: ["'self'", "bs.devcodebox.com"],
-// 			objectSrc: ["'none'"],
-// 			upgradeInsecureRequests: [],
-// 		},
-// 	})
-// )
-
 // app.use(json())
 // app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
@@ -50,6 +30,7 @@ store.on("error", function (error) {
 	console.log(error)
 })
 
+app.set("trust proxy", 1)
 app.use(
 	require("express-session")({
 		genid: function (req) {
@@ -59,27 +40,20 @@ app.use(
 		cookie: {
 			maxAge: 60 * 60, // 1 hour
 			secure: true,
+			path: "/*",
 		},
 		store: store,
-		// Boilerplate options, see:
-		// * https://www.npmjs.com/package/express-session#resave
-		// * https://www.npmjs.com/package/express-session#saveuninitialized
 		resave: false,
 		saveUninitialized: false,
+		secure: true,
 	})
 )
 
-app.get("/", cors(), function (req, res) {
-	req.session.data = { name: "maks" }
-	console.log(req.session)
-	console.log(req.session.data)
-	res.send("Hello " + JSON.stringify(req.session.data))
-})
-
-app.get("/api", cors(), function (req, res) {
-	console.log("get /api")
-	res.send(JSON.stringify({ msg: "api route says hello" }))
-})
+// app.all("/auth/*", (req, res) => {
+// 	if (isUserAdmin(req)) {
+// 		res.json({ s: 1 })
+// 	} else res.json({ s: 0 })
+// })
 
 app.listen(env.NODEPORT, async (err) => {
 	if (err) console.log("error", err)
@@ -94,3 +68,7 @@ app.listen(env.NODEPORT, async (err) => {
 	}
 	console.log(`backend started on env port: ${env.NODEPORT}`)
 })
+
+const isUserAdmin = (req) => {
+	return req.session.data.permissions == "admin" ? true : false
+}
