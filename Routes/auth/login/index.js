@@ -3,6 +3,8 @@
 const express = require("express")
 const router = express.Router()
 
+const session = require("express-session")
+
 const { json } = require("body-parser")
 const argon2 = require("argon2")
 const config = require("../../../config/config")
@@ -63,7 +65,7 @@ router.post("/", [checkUsersDBforUser, checkUserPassword], (req, res) => {
 		joinDate: res.locals.user.joinDate,
 		role: res.locals.user.role,
 	}
-	req.session.usr = existedUser
+	req.session.data = existedUser
 	// console.log(existedUser)
 
 	res.status(200).json({ data: existedUser })
