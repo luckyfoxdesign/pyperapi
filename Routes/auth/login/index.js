@@ -63,7 +63,6 @@ router.post("/", [checkUsersDBforUser, checkUserPassword], (req, res) => {
 		joinDate: res.locals.user.joinDate,
 		role: res.locals.user.role,
 	}
-	req.session.data = existedUser
 	// console.log(existedUser)
 
 	res.status(200).json({ data: existedUser })

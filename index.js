@@ -2,7 +2,7 @@
 
 const express = require("express")
 const session = require("express-session")
-const MongoDBStore = require("connect-mongodb-session")(session)
+const MongoStore = require("connect-mongo")
 const app = express()
 const mongoose = require("mongoose")
 const config = require("./config/config")
@@ -13,62 +13,77 @@ const { env } = require("process")
 const login = require("./Routes/auth/login/index")
 const register = require("./Routes/auth/registration/index")
 
-// app.use(json())
-// app.use(express.json()) // for parsing application/json
+const SESSECRET = env.SESECRET
+const NODEPORT = env.NODEPORT
+
+app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-
-const store = new MongoDBStore({
-	uri: config.mongoConnectionString("sessions_db"),
-	databaseName: "sessions_db",
-	collection: "sessions",
-})
-
-store.on("error", function (error) {
-	console.log(error)
-})
 
 app.set("trust proxy", 1)
 app.use(
-	require("express-session")({
+	session({
 		genid: function (req) {
 			return uuidv4()
 		},
-		secret: `${env.SESSECRET}`,
+		secret: `${SESSECRET}`,
 		cookie: {
-			maxAge: 60 * 60, // 1 hour
+			maxAge: 86400000 / 2, // 12 hours
 			secure: true,
-			path: "/*",
+			httpOnly: false,
+			sameSite: true,
+			path: "/",
 		},
-		store: store,
+		store: MongoStore.create(config.mongoStoreConnectionOptions),
 		resave: false,
 		saveUninitialized: false,
-		secure: true,
 	})
 )
-
-// app.all("/auth/*", (req, res) => {
-// 	if (isUserAdmin(req)) {
-// 		res.json({ s: 1 })
-// 	} else res.json({ s: 0 })
-// })
 
 app.use("/api/auth/login", [cors(), login])
 app.use("/api/auth/registration", [cors(), register])
 
-app.listen(env.NODEPORT, async (err) => {
+app.get("/rg", cors(), (req, res) => {
+	const dt = (req.session.data = { username: "maks_test", role: "usr" })
+	req.session.save()
+	console.log(req.sessionID)
+	console.log(req.session)
+	res.json(dt)
+})
+
+app.get("/do", cors(), (req, res) => {
+	console.log(req.sessionID)
+	console.log(req.session)
+	if (req.session.data) {
+		console.log("do")
+		res.json({ r: "do success" })
+	} else {
+		// const db = config.dataBaseConnection.useDb("sessions_db")
+		// console.log(req.sessionID)
+		// console.log(req.session.id)
+		// let r
+		// await db
+		// 	.collection("sessions")
+		// 	.findOne({ session: req.sessionID })
+		// 	.then((res) => {
+		// 		r = res
+		// 		console.log(res)
+		// 	})
+		res.json({ r: "do error" })
+	}
+})
+
+app.get("/go", cors(), (req, res) => {
+	req.session.destroy()
+	res.json({ r: "session destroyed" })
+})
+
+app.listen(NODEPORT, async (err) => {
 	if (err) console.log("error", err)
 	else {
 		config.dataBaseConnection = await mongoose.createConnection(
 			config.mongoConnectionString("articles_db"),
 			config.mongoConnectionOptions
 		)
-		// config.dataBaseConnection.on("disconnected", (disconnectedError) => {
-		// 	console.log(disconnectedError)
-		// })
 	}
-	console.log(`backend started on env port: ${env.NODEPORT}`)
+	console.log(`backend started on env port: ${NODEPORT}`)
 })
-
-const isUserAdmin = (req) => {
-	return req.session.data.permissions == "admin" ? true : false
-}

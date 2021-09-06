@@ -2,9 +2,14 @@
 
 const { env } = require("process")
 
+const USER = env.MDBUSER,
+	PASSWD = env.MDBPASSWD,
+	ADDRESS = env.ADDRESS,
+	SESSECRET = env.SESECRET
+
 module.exports = {
 	mongoConnectionString: function getConnectionString(dbName) {
-		return `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${env.ADDRESS}/${dbName}?authSource=admin`
+		return `mongodb://${USER}:${PASSWD}@${ADDRESS}/${dbName}?authSource=admin`
 	},
 	mongoConnectionOptions: {
 		useNewUrlParser: true,
@@ -12,10 +17,10 @@ module.exports = {
 		useCreateIndex: true,
 	},
 	mongoStoreConnectionOptions: {
-		url: `mongodb://${env.MDBUSER}:${env.MDBPASSWD}@${env.ADDRESS}/sessions_db?authSource=admin`,
-		collection: "sessions",
+		mongoUrl: `mongodb://${USER}:${PASSWD}@${ADDRESS}/sessions_db?authSource=admin`,
+		collectionName: "sessions",
 		ttl: 40,
-		secret: `${env.SESSECRET}`,
+		secret: `${SESSECRET}`,
 	},
 	dataBaseConnection: "",
 }
