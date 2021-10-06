@@ -4,7 +4,7 @@ const express = require("express")
 const router = express.Router()
 const { json } = require("body-parser")
 const articleModel = require("../models/Article")
-const config = require("../../../../config/config")
+const config = require("../../../config/config")
 
 router.use(json())
 

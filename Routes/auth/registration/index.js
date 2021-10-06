@@ -1,15 +1,41 @@
 "use strict"
 
 const express = require("express")
+const session = require("express-session")
 const router = express.Router()
-
 const { json } = require("body-parser")
-
+const MongoStore = require("connect-mongo")
+const { v4: uuidv4 } = require("uuid")
+const { env } = require("process")
 const argon2 = require("argon2")
 const usermodel = require("./models/User")
 const config = require("../../../config/config")
+const par = require("../../../config/env")
+
+const SESSECRET = env.SESSECRET || par.SESSECRET
 
 router.use(json())
+
+const mongoSessionStore = MongoStore.create(config.mongoStoreConnectionOptions)
+router.use(
+	session({
+		genid: function (req) {
+			return uuidv4()
+		},
+		secret: `${SESSECRET}`,
+		cookie: {
+			maxAge: 86400000 / 2, // 12 hours
+			secure: false,
+			httpOnly: false,
+			sameSite: false,
+			path: "/",
+		},
+		store: mongoSessionStore,
+		resave: false,
+		saveUninitialized: false,
+		unset: "destroy",
+	})
+)
 
 // Поиск юзера в бд
 const searchUserInUsersDB = async (req, res, next) => {
@@ -63,13 +89,15 @@ const hashPassword = async (req, res, next) => {
 }
 
 // вставка данных пользователя в бд и отправка на клиент
-router.post("/", [searchUserInUsersDB, hashPassword], async (req, res) => {
+router.post("/", [searchUserInUsersDB, hashPassword], async (req, res, next) => {
 	const newUser = new usermodel(res.locals.reqUser)
 
 	const mongoConnection =
 		config.dataBaseConnection.name === "users_db"
 			? config.dataBaseConnection
 			: config.dataBaseConnection.useDb("users_db")
+
+	console.log(req.sessionID)
 
 	await mongoConnection
 		.collection("user_collection")
@@ -83,6 +111,7 @@ router.post("/", [searchUserInUsersDB, hashPassword], async (req, res) => {
 					joinDate: insertOneResult.ops[0].joinDate,
 					role: insertOneResult.ops[0].role,
 				}
+				req.session.data = newUser
 				res.status(200).json({ data: newUser })
 			},
 			(insertOneError) => {

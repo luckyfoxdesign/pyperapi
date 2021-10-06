@@ -3,7 +3,7 @@
 const express = require("express")
 const router = express.Router()
 const { json } = require("body-parser")
-const config = require("../../../../config/config")
+const config = require("../../../config/config")
 
 function returnFindOptions(skip = 0, limit = 20) {
 	return {

@@ -1,15 +1,16 @@
 "use strict"
 
+const localEnv = require("./env")
 const { env } = require("process")
 
-const USER = env.MDBUSER,
-	PASSWD = env.MDBPASSWD,
-	ADDRESS = env.ADDRESS,
-	SESSECRET = env.SESECRET
+const SESSECRET = env.SESSECRET || localEnv.SESSECRET
+const MDBPASSWD = env.MDBPASSWD || localEnv.MDBPASSWD
+const MDBUSER = env.MDBUSER || localEnv.MDBUSER
+const ADDRESS = env.ADDRESS || localEnv.ADDRESS
 
 module.exports = {
 	mongoConnectionString: function getConnectionString(dbName) {
-		return `mongodb://${USER}:${PASSWD}@${ADDRESS}/${dbName}?authSource=admin`
+		return `mongodb://${MDBUSER}:${MDBPASSWD}@${ADDRESS}/${dbName}?authSource=admin`
 	},
 	mongoConnectionOptions: {
 		useNewUrlParser: true,
@@ -17,10 +18,11 @@ module.exports = {
 		useCreateIndex: true,
 	},
 	mongoStoreConnectionOptions: {
-		mongoUrl: `mongodb://${USER}:${PASSWD}@${ADDRESS}/sessions_db?authSource=admin`,
+		mongoUrl: `mongodb://${MDBUSER}:${MDBPASSWD}@${ADDRESS}/sessions_db?authSource=admin`,
 		collectionName: "sessions",
 		ttl: 40,
 		secret: `${SESSECRET}`,
 	},
 	dataBaseConnection: "",
+	mongoStore: "",
 }

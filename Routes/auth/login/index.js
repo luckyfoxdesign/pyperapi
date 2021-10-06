@@ -2,12 +2,40 @@
 
 const express = require("express")
 const router = express.Router()
+const session = require("express-session")
 
 const { json } = require("body-parser")
 const argon2 = require("argon2")
 const config = require("../../../config/config")
+const MongoStore = require("connect-mongo")
+const { v4: uuidv4 } = require("uuid")
+const { env } = require("process")
+const par = require("../../../config/env")
+
+const SESSECRET = env.SESSECRET || par.SESSECRET
 
 router.use(json())
+
+const mongoSessionStore = MongoStore.create(config.mongoStoreConnectionOptions)
+router.use(
+	session({
+		genid: function (req) {
+			return uuidv4()
+		},
+		secret: `${SESSECRET}`,
+		cookie: {
+			maxAge: 86400000 / 2, // 12 hours
+			secure: false,
+			httpOnly: false,
+			sameSite: false,
+			path: "/",
+		},
+		store: mongoSessionStore,
+		resave: false,
+		saveUninitialized: false,
+		unset: "destroy",
+	})
+)
 
 const checkUsersDBforUser = async (req, res, next) => {
 	// console.log("Этап 1")
@@ -63,7 +91,9 @@ router.post("/", [checkUsersDBforUser, checkUserPassword], (req, res) => {
 		joinDate: res.locals.user.joinDate,
 		role: res.locals.user.role,
 	}
+	req.session.data = existedUser
 	// console.log(existedUser)
+	config.mongoStore = mongoSessionStore
 
 	res.status(200).json({ data: existedUser })
 })

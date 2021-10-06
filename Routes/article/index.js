@@ -4,7 +4,7 @@ const express = require("express")
 const router = express.Router()
 const { json } = require("body-parser")
 const mongoose = require("mongoose")
-const config = require("../../../config/config")
+const config = require("../../config/config")
 
 function returnDBCollectionName(type) {
 	if (type === "draft") return "draftArticles_collection"
